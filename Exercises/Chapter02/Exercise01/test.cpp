@@ -3,9 +3,7 @@
 #include <cstdlib>
 #include "../../../Common/timer.h"
 #include "../../../Common/utils.cuh"
-
-// 声明 CUDA 函数
-extern "C" void vectorMultiplyDevice(float* h_c, const float* h_a, const float* h_b, int n);
+#include "solution.h"
 
 /**
  * CPU 实现的向量乘法（用于验证）

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <cuda_runtime.h>
 #include "../../../Common/utils.cuh"
+#include "solution.h"
 
 /**
  * CUDA Kernel: 向量乘法

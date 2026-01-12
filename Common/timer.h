@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include <chrono>
+#include <cuda_runtime.h>
 
 class Timer {
 private:

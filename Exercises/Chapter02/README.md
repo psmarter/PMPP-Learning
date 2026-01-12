@@ -368,12 +368,13 @@ CUDA 编译器会自动编译该函数的两个版本，无需重复代码。
 
 ```
 Exercise01/
+├── solution.h          # 函数声明头文件
 ├── solution.cu         # CUDA kernel 和 host 函数实现
 ├── test.cpp            # 测试代码（正确性验证 + 性能测试）
 ├── Makefile            # 编译脚本
 └── ../../Common/       # 公共工具库
     ├── utils.cuh       # CUDA 错误检查宏
-    └── timer.h         # 性能计时器
+    └── timer.h         # 性能计时器（CPU + CUDA）
 ```
 
 ## 💡 学习建议

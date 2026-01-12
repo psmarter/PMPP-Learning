@@ -23,15 +23,17 @@ David Kirk 和 Wen-mei Hwu《Programming Massively Parallel Processors》第四�
 代码特点：
 
 - 模块化组织（kernel 实现和测试分离）
+- 使用共享头文件，避免声明重复
 - 完整的错误检查机制
 - 详细的中文注释
 - 正确性验证 + 性能测试
+- 符合现代 C++ 最佳实践
 - 支持 Linux 和 Windows
 
 ## 章节进度
 
 | 章节 | 主题 | 状态 |
-|------|------|------|
+| ------ | ------ | ------ |
 | [第 2 章](Exercises/Chapter02) | 异构数据并行计算 | ✅ 完成 |
 | 第 3 章 | 多维网格和数据 | 🚧 进行中 |
 | 第 4 章 | 计算架构和调度 | 📅 计划中 |
@@ -61,17 +63,18 @@ make run
 
 ## 项目结构
 
-```
+```text
 PMPP-Learning/
 ├── Blogs/                      # 学习笔记
 │   └── PMPP-第二章：异构数据并行计算.md
 ├── Common/                     # 公共工具
 │   ├── utils.cuh               # CUDA 错误检查
-│   └── timer.h                 # 性能计时器
+│   └── timer.h                 # 性能计时器（支持 CPU 和 CUDA 计时）
 └── Exercises/                  # 章节练习
     └── Chapter02/
         ├── README.md           # 练习题解答
         └── Exercise01/         # 向量乘法练习
+            ├── solution.h      # 函数声明头文件
             ├── solution.cu     # CUDA 实现
             ├── test.cpp        # 测试代码
             └── Makefile        # 编译脚本
