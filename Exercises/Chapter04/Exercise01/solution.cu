@@ -1,4 +1,5 @@
 #include "solution.h"
+#include "../../../Common/utils.cuh"
 #include <cuda_runtime.h>
 #include <cstdio>
 #include <cstdlib>
@@ -11,6 +12,9 @@
  * - 计算占用率
  * - 理解资源限制（寄存器、共享内存）
  * 非常重要。
+ * 
+ * 注意：Common/utils.cuh 中提供了简化版的 printDeviceInfo()，
+ * 这里提供了更详细的中文版本。
  */
 void printDeviceProperties() {
     int deviceCount = 0;
@@ -35,7 +39,7 @@ void printDeviceProperties() {
 
     for (int dev = 0; dev < deviceCount; ++dev) {
         cudaDeviceProp prop;
-        cudaGetDeviceProperties(&prop, dev);
+        CHECK_CUDA(cudaGetDeviceProperties(&prop, dev));
 
         printf("\n");
         printf("设备 %d: \"%s\"\n", dev, prop.name);
