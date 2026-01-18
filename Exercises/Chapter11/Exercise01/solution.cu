@@ -18,8 +18,8 @@
 #include <cstdlib>
 #include <cmath>
 
-// 辅助函数
-inline unsigned int cdiv(unsigned int a, unsigned int b) {
+// 辅助函数 - 需要 __host__ __device__ 才能在 kernel 中调用
+__host__ __device__ inline unsigned int cdiv(unsigned int a, unsigned int b) {
     return (a + b - 1) / b;
 }
 
