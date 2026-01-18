@@ -23,7 +23,7 @@
  * 协同排名函数（co-rank）
  * 找到合并结果中第 k 个元素来自 A 的位置
  */
-int co_rank(int k, float* A, int m, float* B, int n);
+__host__ __device__ int co_rank(int k, float* A, int m, float* B, int n);
 
 /**
  * 顺序归并（CPU/GPU）
