@@ -47,6 +47,7 @@ David Kirk 和 Wen-mei Hwu《Programming Massively Parallel Processors》第四�
 | [第 12 章](Exercises/Chapter12) | 归并 | ✅ 完成 |
 | [第 13 章](Exercises/Chapter13) | 排序 | ✅ 完成 |
 | [第 14 章](Exercises/Chapter14) | 稀疏矩阵计算 | ✅ 完成 |
+| [第 15 章](Exercises/Chapter15) | 图遍历 | ✅ 完成 |
 
 ## 快速开始
 
@@ -140,9 +141,12 @@ PMPP-Learning/
     ├── Chapter13/              # 第十三章：排序
     │   ├── README.md
     │   └── Exercise01/         # 排序（5种实现）
-    └── Chapter14/              # 第十四章：稀疏矩阵计算
+    ├── Chapter14/              # 第十四章：稀疏矩阵计算
+    │   ├── README.md
+    │   └── Exercise01/         # SpMV（6种格式实现）
+    └── Chapter15/              # 第十五章：图遍历
         ├── README.md
-        └── Exercise01/         # SpMV（6种格式实现）
+        └── Exercise01/         # BFS（6种实现）
 ```
 
 ## 代码示例
