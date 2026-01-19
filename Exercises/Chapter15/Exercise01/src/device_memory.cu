@@ -7,7 +7,7 @@
  */
 
 #include "../include/device_memory.h"
-#include "../../../Common/utils.cuh"
+#include "../../../../Common/utils.cuh"
 #include <cuda_runtime.h>
 #include <cstdlib>
 

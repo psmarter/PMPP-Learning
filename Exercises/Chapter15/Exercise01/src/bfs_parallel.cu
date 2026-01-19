@@ -9,7 +9,7 @@
 #include "../include/bfs_parallel.h"
 #include "../include/device_memory.h"
 #include "../include/graph_structures.h"
-#include "../../../Common/utils.cuh"
+#include "../../../../Common/utils.cuh"
 #include <cuda_runtime.h>
 #include <cstdio>
 #include <cstdlib>

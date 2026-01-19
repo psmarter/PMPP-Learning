@@ -13,11 +13,11 @@
 #include "../include/graph_generators.h"
 #include "../include/graph_structures.h"
 #include "../include/utils.h"
-#include "../../../Common/utils.cuh"
-#include "../../../Common/timer.h"
+#include "../../../../Common/utils.cuh"
 #include <cuda_runtime.h>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 
 int main() {
     printf("\n");
@@ -122,6 +122,11 @@ int main() {
     // 性能测试
     printf("=== 性能基准测试 ===\n\n");
     
+    // 创建CUDA事件用于计时
+    cudaEvent_t start, stop;
+    CHECK_CUDA(cudaEventCreate(&start));
+    CHECK_CUDA(cudaEventCreate(&stop));
+    
     for (int i = 0; i < numSizes; i++) {
         int size = testSizes[i];
         printf("图规模：%d 个顶点\n", size);
@@ -138,59 +143,70 @@ int main() {
         CSCGraph deviceCSC = allocateCSCGraphOnDevice(testCSC);
         COOGraph deviceCOO = allocateCOOGraphOnDevice(testCOO);
         
-        // CPU BFS
-        CudaTimer timer;
-        timer.start();
+        // CPU BFS (使用clock计时)
+        clock_t cpuStart = clock();
         int* seqResult = bfs(testCSR, startVertex);
-        timer.stop();
-        float seqTime = timer.elapsed_ms();
+        clock_t cpuEnd = clock();
+        float seqTime = 1000.0f * (cpuEnd - cpuStart) / CLOCKS_PER_SEC;
         printf("Sequential BFS: %.2f ms\n", seqTime);
         
         // Push BFS
-        timer.start();
+        CHECK_CUDA(cudaEventRecord(start));
         int* pushRes = bfsParallelPushVertexCentricDevice(deviceCSR, startVertex);
-        timer.stop();
-        float pushTime = timer.elapsed_ms();
+        CHECK_CUDA(cudaEventRecord(stop));
+        CHECK_CUDA(cudaEventSynchronize(stop));
+        float pushTime = 0.0f;
+        CHECK_CUDA(cudaEventElapsedTime(&pushTime, start, stop));
         printf("Push Vertex-Centric BFS: %.2f ms (%.2fx speedup)\n", pushTime, seqTime / pushTime);
         free(pushRes);
         
         // Pull BFS
-        timer.start();
+        CHECK_CUDA(cudaEventRecord(start));
         int* pullRes = bfsParallelPullVertexCentricDevice(deviceCSC, startVertex);
-        timer.stop();
-        float pullTime = timer.elapsed_ms();
+        CHECK_CUDA(cudaEventRecord(stop));
+        CHECK_CUDA(cudaEventSynchronize(stop));
+        float pullTime = 0.0f;
+        CHECK_CUDA(cudaEventElapsedTime(&pullTime, start, stop));
         printf("Pull Vertex-Centric BFS: %.2f ms (%.2fx speedup)\n", pullTime, seqTime / pullTime);
         free(pullRes);
         
         // Edge-Centric BFS
-        timer.start();
+        CHECK_CUDA(cudaEventRecord(start));
         int* edgeRes = bfsParallelEdgeCentricDevice(deviceCOO, startVertex);
-        timer.stop();
-        float edgeTime = timer.elapsed_ms();
+        CHECK_CUDA(cudaEventRecord(stop));
+        CHECK_CUDA(cudaEventSynchronize(stop));
+        float edgeTime = 0.0f;
+        CHECK_CUDA(cudaEventElapsedTime(&edgeTime, start, stop));
         printf("Edge-Centric BFS: %.2f ms (%.2fx speedup)\n", edgeTime, seqTime / edgeTime);
         free(edgeRes);
         
         // Frontier BFS
-        timer.start();
+        CHECK_CUDA(cudaEventRecord(start));
         int* frontRes = bfsParallelFrontierVertexCentricDevice(deviceCSR, startVertex);
-        timer.stop();
-        float frontTime = timer.elapsed_ms();
+        CHECK_CUDA(cudaEventRecord(stop));
+        CHECK_CUDA(cudaEventSynchronize(stop));
+        float frontTime = 0.0f;
+        CHECK_CUDA(cudaEventElapsedTime(&frontTime, start, stop));
         printf("Frontier-based BFS: %.2f ms (%.2fx speedup)\n", frontTime, seqTime / frontTime);
         free(frontRes);
         
         // Frontier优化 BFS
-        timer.start();
+        CHECK_CUDA(cudaEventRecord(start));
         int* frontOptRes = bfsParallelFrontierVertexCentricOptimizedDevice(deviceCSR, startVertex);
-        timer.stop();
-        float frontOptTime = timer.elapsed_ms();
+        CHECK_CUDA(cudaEventRecord(stop));
+        CHECK_CUDA(cudaEventSynchronize(stop));
+        float frontOptTime = 0.0f;
+        CHECK_CUDA(cudaEventElapsedTime(&frontOptTime, start, stop));
         printf("Optimized Frontier-based BFS: %.2f ms (%.2fx speedup)\n", frontOptTime, seqTime / frontOptTime);
         free(frontOptRes);
         
         // Direction-Optimized BFS
-        timer.start();
+        CHECK_CUDA(cudaEventRecord(start));
         int* dirRes = bfsDirectionOptimizedDevice(deviceCSR, deviceCSC, startVertex, 0.1f);
-        timer.stop();
-        float dirTime = timer.elapsed_ms();
+        CHECK_CUDA(cudaEventRecord(stop));
+        CHECK_CUDA(cudaEventSynchronize(stop));
+        float dirTime = 0.0f;
+        CHECK_CUDA(cudaEventElapsedTime(&dirTime, start, stop));
         printf("Direction-Optimized BFS: %.2f ms (%.2fx speedup)\n", dirTime, seqTime / dirTime);
         free(dirRes);
         
@@ -221,6 +237,10 @@ int main() {
     printf("• 私有化：使用共享内存减少全局原子操作争用\n");
     printf("• 方向优化：根据前沿大小动态切换Push/Pull\n");
     printf("\n");
+    
+    // 销毁CUDA events
+    CHECK_CUDA(cudaEventDestroy(start));
+    CHECK_CUDA(cudaEventDestroy(stop));
     
     printf("✅ 测试完成！\n\n");
     return 0;

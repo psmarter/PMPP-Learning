@@ -37,7 +37,7 @@ CSCGraph allocateCSCGraphOnDevice(const CSCGraph& hostGraph);
  * 释放GPU上的CSC图
  * @param deviceGraph GPU上的CSC图指针
  */
-void freeCSCGraphOnDevice(CSC Graph* deviceGraph);
+void freeCSCGraphOnDevice(CSCGraph* deviceGraph);
 
 // ====================== COO图内存管理 ======================
 
