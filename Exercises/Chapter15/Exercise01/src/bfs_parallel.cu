@@ -543,13 +543,11 @@ __global__ void bfs_single_block_kernel(CSRGraph graph, int* levels,
     __shared__ int localFrontier[LOCAL_FRONTIER_CAPACITY];
     __shared__ int localFrontierSize;
     __shared__ int nextLocalFrontierSize;
-    __shared__ bool overflowed;
     
     // 初始化共享变量
     if (threadIdx.x == 0) {
         localFrontierSize = *frontierSize;
         nextLocalFrontierSize = 0;
-        overflowed = false;
         
         // 拷贝当前前沿到共享内存（如果有）
         // 注意：这里假设初始前沿在global memory中也是小规模的，或者我们只处理其前capacity个
@@ -591,32 +589,10 @@ __global__ void bfs_single_block_kernel(CSRGraph graph, int* levels,
             if (atomicCAS(&levels[neighbor], -1, currLevel) == -1) {
                 int idx = atomicAdd(&nextLocalFrontierSize, 1);
                 
-                if (idx < LOCAL_FRONTIER_CAPACITY) {
-                    // 还在共享内存容量内
-                    // localFrontier作为buffer复用，还是用nextFrontier缓冲区？
-                    // kernel参数并没有传入nextLocalFrontier buffer. 
-                    // 通常我们需要双缓冲 shared memory, 或者直接写入 global nextFrontier
-                    // 根据题目描述（Section 15.7），我们应该尝试留在shared memory
-                    // 但这里为了简化，我们只用 shared memory 存储 *当前* 前沿，
-                    // 生成的 *下一层* 前沿如果小，可以存 shared memory，否则存 global。
-                    // 但为了实现简单，我们这里直接写入 Global Next Frontier，或者
-                    // 更好的方式：使用 global memory 作为 next frontier, 但是用 shared atomic counter。
-                    // 
-                    // 修正逻辑：题目意图是完全在shared memory中运作直到溢出。
-                    // 但这里由于参数限制，我们简化逻辑：读取自Shared，写入Global
-                    // 这其实是 Privatization Kernel 的变体，但限制在单Block。
-                    
-                    // 真正的Single Block算法通常是在一个循环内，不断交换两个Shared Queue
-                    // 直到队列为空或溢出。这里kernel只做一步（一层）。
-                    
-                    // 我们写入 Global Next Frontier
-                    int globalIdx = atomicAdd(nextFrontierSize, 1);
-                    nextFrontier[globalIdx] = neighbor;
-                } else {
-                    overflowed = true;
-                    int globalIdx = atomicAdd(nextFrontierSize, 1);
-                    nextFrontier[globalIdx] = neighbor;
-                }
+                // 直接写入 Global Next Frontier
+                int globalIdx = atomicAdd(nextFrontierSize, 1);
+                nextFrontier[globalIdx] = neighbor;
+                (void)idx;  // 防止未使用警告
             }
         }
     }
