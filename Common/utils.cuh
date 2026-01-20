@@ -2,6 +2,7 @@
 #define UTILS_CUH
 
 #include <stdio.h>
+#include <cstdlib>
 #include <cuda_runtime.h>
 
 // CUDA 错误检查宏
