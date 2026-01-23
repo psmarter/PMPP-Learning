@@ -8,7 +8,8 @@
 
 #include <cmath>
 #include <cstdio>
-#include <cstdlib>\r\n#include <cstring>
+#include <cstdlib>
+#include <cstring>
 
 const float EPSILON = 1e-4f;
 
