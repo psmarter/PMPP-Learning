@@ -19,14 +19,18 @@ int main(int argc, char* argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &pid);
     MPI_Comm_size(MPI_COMM_WORLD, &np);
     
-    // 检查进程数
-    if (np < 3) {
+    // 调试输出
+    printf("[DEBUG] Process %d: MPI_Comm_size = %d\n", pid, np);
+    fflush(stdout);
+    
+    // 检查进程数（至少需要2个：1计算节点+1数据服务器）
+    if (np < 2) {
         if (pid == 0) {
             printf("================================================================\n");
             printf("  第二十章：异构计算集群编程\n");
             printf("  MPI + CUDA Distributed Stencil Computation\n");
             printf("================================================================\n\n");
-            printf("错误：需要至少 3 个 MPI 进程\n");
+            printf("错误：需要至少 2 个 MPI 进程\n");
             printf("用法：mpirun -np 3 ./stencil_mpi\n");
         }
         MPI_Finalize();
