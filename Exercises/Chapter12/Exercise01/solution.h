@@ -1,6 +1,8 @@
 #ifndef SOLUTION_H
 #define SOLUTION_H
 
+#include <cuda_runtime.h>
+
 /**
  * 第十二章：归并 - 并行归并实现
  * 

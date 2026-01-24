@@ -312,6 +312,17 @@ CUDA_ARCH = sm_75
 
 **解决**：使用Git Bash或WSL，或修改Makefile的`rm`命令为`del`
 
+### cuDNN库缺失？
+
+**问题**：Chapter16/Exercise05编译失败
+```bash
+fatal error: cudnn.h: 没有那个文件或目录
+```
+
+**解决**：
+- **方案1**：安装cuDNN库（参见[Exercise05/README](Exercises/Chapter16/README.md#exercise05---cudnn-封装实现)）
+- **方案2**：跳过Exercise05，完成Exercise01-04即可（不影响其他练习）
+
 ## LICENSE
 
 MIT License - 详见 [LICENSE](LICENSE)

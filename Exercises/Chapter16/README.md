@@ -226,7 +226,15 @@ cuBLAS 性能达到理论峰值的 82.3%
 cd Exercise05 && make && make run
 ```
 
-> **注意**: 本练习需要安装 cuDNN 库。
+> **重要提示**: 本练习需要安装 cuDNN 库
+> 
+> **安装cuDNN**：
+> 1. 从[NVIDIA官网](https://developer.nvidia.com/cudnn)下载cuDNN
+> 2. 解压后将include和lib文件复制到CUDA安装目录
+> 3. Linux: `sudo cp cudnn*/include/* /usr/local/cuda/include/`
+> 4. Linux: `sudo cp cudnn*/lib/* /usr/local/cuda/lib64/`
+> 
+> **跳过此Exercise**：如果不需要cuDNN，可以跳过Exercise05，不影响其他练习
 
 #### 预期输出
 
