@@ -4,16 +4,20 @@
 NVCC = nvcc
 CUDA_FLAGS = -O3 -arch=sm_60 -std=c++17
 
-# MPI 编译标志（需要安装 OpenMPI 或 MPICH）
-MPI_COMPILE_FLAGS = $(shell mpicc --showme:compile 2>/dev/null || echo "")
-MPI_LINK_FLAGS = $(shell mpicc --showme:link 2>/dev/null || echo "")
+# MPI 路径（适用于 Ubuntu/Debian 的 OpenMPI）
+MPI_INCLUDE = /usr/lib/x86_64-linux-gnu/openmpi/include
+MPI_LIB = /usr/lib/x86_64-linux-gnu/openmpi/lib
 
-# 检查 MPI 是否可用
-ifeq ($(MPI_COMPILE_FLAGS),)
-$(warning MPI not found. Please install OpenMPI or MPICH.)
-$(warning On Ubuntu/Debian: sudo apt install openmpi-bin libopenmpi-dev)
-$(warning On CentOS/RHEL: sudo yum install openmpi openmpi-devel)
+# 检查 MPI 头文件是否存在
+MPI_AVAILABLE := $(shell test -f $(MPI_INCLUDE)/mpi.h && echo yes || echo no)
+
+ifeq ($(MPI_AVAILABLE),no)
+$(warning MPI not found at $(MPI_INCLUDE))
+$(warning Please install OpenMPI: sudo apt install openmpi-bin libopenmpi-dev)
 endif
+
+# MPI 编译标志
+MPI_FLAGS = -I$(MPI_INCLUDE) -I$(MPI_INCLUDE)/openmpi -L$(MPI_LIB) -lmpi
 
 # 目标可执行文件
 TARGET = stencil_mpi
@@ -26,7 +30,7 @@ all: $(TARGET)
 
 # 编译
 $(TARGET): $(SOURCES) solution.h
-	$(NVCC) $(CUDA_FLAGS) $(MPI_COMPILE_FLAGS) $(SOURCES) $(MPI_LINK_FLAGS) -o $(TARGET)
+	$(NVCC) $(CUDA_FLAGS) $(SOURCES) $(MPI_FLAGS) -o $(TARGET)
 
 # 运行（3 个进程：2 计算节点 + 1 数据服务器）
 run: $(TARGET)
@@ -39,10 +43,6 @@ run4: $(TARGET)
 # 清理
 clean:
 	rm -f $(TARGET) *.o
-
-# Windows 清理
-clean-win:
-	del /F /Q $(TARGET).exe 2>nul || echo.
 
 # 帮助
 help:
@@ -60,6 +60,6 @@ help:
 	@echo ""
 	@echo "Install MPI:"
 	@echo "  Ubuntu/Debian: sudo apt install openmpi-bin libopenmpi-dev"
-	@echo "  CentOS/RHEL:   sudo yum install openmpi openmpi-devel"
 
-.PHONY: all run run4 clean clean-win help
+.PHONY: all run run4 clean help
+
