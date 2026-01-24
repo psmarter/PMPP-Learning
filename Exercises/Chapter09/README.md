@@ -12,7 +12,7 @@
 - 线程粗化（Thread Coarsening）
 - 内存合并访问（Coalesced Memory Access）
 
-**相关博客笔记**：[PMPP-第九章：并行直方图.md](../../Blogs/PMPP-第九章：并行直方图.md)
+**相关博客笔记**：[第九章：并行直方图](https://smarter.xin/posts/d29973f1/)
 
 ---
 
@@ -262,5 +262,10 @@ Block 数量：
 - 第十二章：合并
 
 ---
+
+## 📚 参考资料
+
+- PMPP 第四版 Chapter 9
+- [第九章：并行直方图](https://smarter.xin/posts/d29973f1/)
 
 **学习愉快！** 🎓

@@ -15,7 +15,7 @@ cover: /img/PMPP.jpg
 
 ## 前言
 
-第二十章介绍了多 GPU 集群编程。第二十一章回到单 GPU 的高级特性——**动态并行性（Dynamic Parallelism）**。传统 CUDA 程序中，只有 CPU 能启动 kernel；而动态并行性允许 **GPU kernel 直接启动其他 kernel**，无需返回 CPU。这一特性对递归算法、自适应计算、不规则数据结构（如树、图）的处理非常有用。
+第二十章介绍了多 GPU 集群编程。第二十一章回到单 GPU 的高级特性——**动态并行性（Dynamic Parallelism）**。传统 CUDA 程序中，只有 CPU 能启动核函数；而动态并行性允许**GPU 核函数直接启动子核函数**，无需返回 CPU。这一特性对递归算法、自适应计算、不规则数据结构（如树、图）的处理特别有用。
 
 > **📦 配套资源**：本系列文章配有完整的 [GitHub 仓库](https://github.com/psmarter/PMPP-Learning)，包含每章的练习题解答、CUDA 代码实现和详细注释。所有代码都经过测试，可以直接运行。
 
@@ -636,13 +636,26 @@ __global__ void parent_kernel() {
 
 动态并行性让 GPU 编程更加灵活，但要权衡使用——对于规则的数据并行任务，传统方式可能更高效。对于天然递归或自适应的问题，动态并行性是强大的工具。
 
+## 🚀 下一步
+
+- 实现 Bezier 曲线的自适应细分，体验动态并行性的优势
+- 构建一个四叉树或八叉树，学习递归算法的 GPU 实现
+- 探索其他递归算法：快速排序、归并排序、分治算法
+- 学习动态并行性的性能调优：启动池配置、嵌套深度控制
+- 对比动态并行性与传统方法的性能差异，理解适用场景
+- 研究自适应网格细化（AMR）等高级应用
+
 ---
 
-**参考资料：**
+## 📚 参考资料
 
+- PMPP 第四版 Chapter 21
+- [第二十一章：CUDA动态并行性](https://smarter.xin/posts/pmmpp-chapter21-dynamic-parallelism/)
 - Hwu, W., Kirk, D., & El Hajj, I. (2022). *Programming Massively Parallel Processors: A Hands-on Approach* (4th Edition). Morgan Kaufmann.
 - NVIDIA. *CUDA C++ Programming Guide - Dynamic Parallelism*. <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
 - NVIDIA. *CUDA Dynamic Parallelism*. <https://developer.nvidia.com/blog/cuda-dynamic-parallelism-api-principles/>
+
+**学习愉快！** 🎓
 
 ---
 

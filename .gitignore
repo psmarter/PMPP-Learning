@@ -40,6 +40,12 @@ test_vector_*
 test_matrix_*
 test_*
 
+# 特殊命名的可执行文件 (Chapter18/20/21)
+bezier_test
+quadtree_test
+stencil_mpi
+cenergy_benchmark
+
 # Windows
 *.exe
 *.dll

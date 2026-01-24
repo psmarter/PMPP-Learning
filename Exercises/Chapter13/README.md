@@ -12,7 +12,7 @@
 - 线程粗化（提高效率）
 - 并行归并排序
 
-**相关博客笔记**：[PMPP-第十三章：排序.md](../../Blogs/PMPP-第十三章：排序.md)
+**相关博客笔记**：[第十三章：排序](https://smarter.xin/posts/d9ee9484/)
 
 ---
 
@@ -286,6 +286,7 @@ void gpuMergeSort(unsigned int* d_input, int N) {
 2. **内存优化**：合并写入减少内存事务数
 3. **多位处理**：减少迭代次数的代价是更多的桶
 4. **线程粗化**：权衡并行度和每线程工作量
+5. **实际应用场景**：基数排序适合整数排序，对于浮点数需要先转换为整数；在生产环境中，考虑使用 Thrust 库的 `thrust::sort` 或 cuSort，它们针对不同数据类型和规模进行了高度优化
 
 ## 🚀 下一步
 
@@ -296,5 +297,10 @@ void gpuMergeSort(unsigned int* d_input, int N) {
 - 第十六章：深度学习
 
 ---
+
+## 📚 参考资料
+
+- PMPP 第四版 Chapter 13
+- [第十三章：排序](https://smarter.xin/posts/d9ee9484/)
 
 **学习愉快！** 🎓

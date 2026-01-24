@@ -11,7 +11,7 @@
 - 格式转换（COO → CSR）
 - 混合格式优化（ELL-COO）
 
-**相关博客笔记**：[PMPP-第十四章：稀疏矩阵.md](../../Blogs/PMPP-第十四章：稀疏矩阵.md)
+**相关博客笔记**：[第十四章：稀疏矩阵计算](https://smarter.xin/posts/7af84cf7/)
 
 ---
 
@@ -226,6 +226,7 @@ __global__ void spmv_jds_kernel(int numRows, int numTiles, const int* colIdx,
 2. **权衡空间和性能**：ELL 可能浪费空间但访问规则
 3. **考虑负载均衡**：行长度差异大时需要特殊处理
 4. **生产环境用库**：cuSPARSE 提供高度优化的实现
+5. **格式选择策略**：根据矩阵特征选择格式——CSR 适合通用场景，ELL 适合行长度相近的矩阵，混合格式（ELL-COO）适合行长度差异大的矩阵；使用 `cusparseMatDescr_t` 描述符指定矩阵属性（对称性、稀疏模式）以启用进一步优化
 
 ## 🚀 下一步
 
@@ -236,5 +237,10 @@ __global__ void spmv_jds_kernel(int numRows, int numTiles, const int* colIdx,
 - 第十七章：迭代磁共振成像重建
 
 ---
+
+## 📚 参考资料
+
+- PMPP 第四版 Chapter 14
+- [第十四章：稀疏矩阵计算](https://smarter.xin/posts/7af84cf7/)
 
 **学习愉快！** 🎓

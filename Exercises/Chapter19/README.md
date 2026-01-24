@@ -4,8 +4,7 @@
 
 ## 📚 学习内容
 
-> [!NOTE]
-> 本章是**理论总结章节**，讨论并行编程的思维方法和设计原则，**无代码练习**。
+**注意**：本章是**理论总结章节**，讨论并行编程的思维方法和设计原则，**无代码练习**。
 
 本章介绍并行编程的核心思维方式：
 
@@ -17,7 +16,7 @@
 - 调试与验证策略
 - 跨平台思维与持续学习
 
-**相关博客笔记**：[PMPP-第十九章：并行编程与计算思维.md](../../Blogs/PMPP-第十九章：并行编程与计算思维.md)
+**相关博客笔记**：[第十九章：并行编程与计算思维](https://smarter.xin/posts/46b3d994/)
 
 ---
 
@@ -152,6 +151,8 @@ Chapter19/
 
 - PMPP 第四版 Chapter 19
 - [GitHub参考仓库](https://github.com/tugot17/pmpp/tree/main/chapter-19)（空占位符）
-- [PMPP-第十九章：并行编程与计算思维.md](../../Blogs/PMPP-第十九章：并行编程与计算思维.md)
+- [第十九章：并行编程与计算思维](https://smarter.xin/posts/46b3d994/)
+
+**学习愉快！** 🎓
 - Wing, J. M. (2006). *Computational Thinking*. Communications of the ACM.
 - Williams, S., et al. (2009). *Roofline: An Insightful Visual Performance Model*.

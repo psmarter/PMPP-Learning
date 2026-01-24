@@ -117,7 +117,7 @@ __global__ void TiledMatrixMulKernelWithCoarsening(float* M, float* N, float* P,
 
         // 对每个粗化的列，加载对应的 N 的 Tile 并计算
         for (int c = 0; c < COARSE_FACTOR; ++c) {
-            int col = colStart + c * TILE_WIDTH;
+            int col = colStart + c * COARSE_FACTOR;
 
             // 加载 N 的 Tile
             int nRow = ph * TILE_WIDTH + ty;
@@ -140,7 +140,7 @@ __global__ void TiledMatrixMulKernelWithCoarsening(float* M, float* N, float* P,
 
     // 写入 COARSE_FACTOR 个结果
     for (int c = 0; c < COARSE_FACTOR; ++c) {
-        int col = colStart + c * TILE_WIDTH;
+        int col = colStart + c * COARSE_FACTOR;
         if (row < m && col < o) {
             P[row * o + col] = Pvalue[c];
         }

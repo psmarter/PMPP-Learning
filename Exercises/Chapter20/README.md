@@ -13,15 +13,14 @@
 - CUDA-Aware MPI（GPU 直接通信）
 - 数据服务器模式
 
-**相关博客笔记**：[PMPP-第二十章：异构计算集群编程.md](../../Blogs/PMPP-第二十章：异构计算集群编程.md)
+**相关博客笔记**：[第二十章：异构计算集群编程](https://smarter.xin/posts/9506dbb9/)
 
-> [!IMPORTANT]
-> 本章代码需要 **MPI 环境**才能编译运行。
->
-> 安装方法：
->
-> - Ubuntu/Debian: `sudo apt install openmpi-bin libopenmpi-dev`
-> - CentOS/RHEL: `sudo yum install openmpi openmpi-devel`
+**重要提示**：本章代码需要 **MPI 环境**才能编译运行。
+
+安装方法：
+
+- Ubuntu/Debian: `sudo apt install openmpi-bin libopenmpi-dev`
+- CentOS/RHEL: `sudo yum install openmpi openmpi-devel`
 
 ---
 
@@ -260,11 +259,15 @@ Chapter20/
    - 直接传递 GPU 指针
    - 减少内存拷贝开销
 
+5. **调试与性能分析**：使用 `MPI_Barrier` 和 `cudaDeviceSynchronize` 进行同步调试，但要注意这些会降低性能；使用 `MPI_Allreduce` 进行全局归约操作（如计算全局误差）；性能分析时关注通信与计算的比例，理想情况下通信时间应远小于计算时间；对于大规模集群，考虑使用 NCCL（NVIDIA Collective Communications Library）进行高效的集合通信
+
 ---
 
 ## 📚 参考资料
 
 - PMPP 第四版 Chapter 20
 - [GitHub参考仓库](https://github.com/tugot17/pmpp/tree/main/chapter-20)
-- [PMPP-第二十章：异构计算集群编程.md](../../Blogs/PMPP-第二十章：异构计算集群编程.md)
+- [第二十章：异构计算集群编程](https://smarter.xin/posts/9506dbb9/)
 - [NVIDIA CUDA-Aware MPI](https://developer.nvidia.com/blog/introduction-cuda-aware-mpi/)
+
+**学习愉快！** 🎓

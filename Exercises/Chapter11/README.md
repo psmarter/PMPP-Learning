@@ -12,7 +12,7 @@
 - 工作效率分析
 - 分层扫描（支持任意长度）
 
-**相关博客笔记**：[PMPP-第十一章：前缀和.md](../../Blogs/PMPP-第十一章：前缀和.md)
+**相关博客笔记**：[第十一章：前缀和](https://smarter.xin/posts/a6fc4cf6/)
 
 ---
 
@@ -34,6 +34,7 @@
 | `scan_brent_kung` | 图11.4 | 工作量 O(N) |
 | `scan_three_phase` | - | 粗化策略 |
 | `scan_hierarchical` | 图11.9 | 支持任意长度 |
+| `scan_hierarchical_domino` | - | 单kernel，Domino-style同步 |
 
 **核心代码**：
 
@@ -89,6 +90,17 @@ make run
 
 6. CPU 顺序扫描... 完成
 7. 分层扫描（任意长度）... ✅ 结果正确！
+8. Domino-Style 分层扫描（单kernel）... ✅ 结果正确！
+
+【关键概念】
+• Kogge-Stone：工作量 O(N log N)，步骤 O(log N)，适合低延迟
+• Brent-Kung：工作量 O(N)，更高效，分上扫和下扫两阶段
+• 双缓冲：消除写后读竞争，无需第二次 __syncthreads()
+• 三阶段：粗化策略，每线程处理多个元素
+• 分层扫描：支持任意长度，多 Block 协作
+• Domino-Style：单kernel实现，动态块索引分配，原子标志同步
+
+✅ 测试完成！
 ```
 
 ---
@@ -352,5 +364,10 @@ if (tid < N) {
 - 第十四章：稀疏矩阵计算
 
 ---
+
+## 📚 参考资料
+
+- PMPP 第四版 Chapter 11
+- [第十一章：前缀和](https://smarter.xin/posts/a6fc4cf6/)
 
 **学习愉快！** 🎓

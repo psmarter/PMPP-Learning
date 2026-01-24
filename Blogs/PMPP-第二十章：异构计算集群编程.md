@@ -16,7 +16,7 @@ cover: /img/PMPP.jpg
 
 ## 前言
 
-第十九章总结了并行编程的思维方法。第二十章将视野扩展到**计算集群**——多台计算机通过网络连接，每台计算机可能配备多个 GPU。这是当今超级计算机和数据中心的典型架构。本章讨论如何使用 **MPI（消息传递接口）** 与 CUDA 结合，实现跨节点的异构并行计算。掌握这些技术，你就能编写可扩展到数千个 GPU 的并行程序。
+第十九章总结了并行编程的思维方法。第二十章将视野扩展到**计算集群（Computing Cluster）**——多台计算机通过高速网络连接，每台计算机可能配备多个 GPU。这是当今超级计算机和数据中心的典型架构。本章讨论如何使用 **MPI（Message Passing Interface，消息传递接口）**与 CUDA 结合，实现跨节点的异构并行计算。掌握这些技术，就能编写可扩展到数千个 GPU 的大规模并行程序。
 
 > **📦 配套资源**：本系列文章配有完整的 [GitHub 仓库](https://github.com/psmarter/PMPP-Learning)，包含每章的练习题解答、CUDA 代码实现和详细注释。所有代码都经过测试，可以直接运行。
 
@@ -730,13 +730,26 @@ nsys profile --trace=cuda,mpi mpirun -np 4 ./my_program
 
 掌握 MPI + CUDA 编程，你就能编写可扩展到数千 GPU 的应用程序——这是当今 AI 训练、科学计算、天气预报等领域的核心技术。
 
+## 🚀 下一步
+
+- 搭建一个简单的多节点 GPU 集群环境，配置 MPI 和 CUDA-Aware MPI
+- 实现一个分布式矩阵乘法，学习数据分割和结果收集
+- 掌握 Halo 交换模式，实现分布式模板计算（如热传导方程）
+- 学习集合通信操作：Allreduce、Allgather、Alltoall
+- 探索性能分析工具：Nsight Systems 分析 MPI + CUDA 程序的性能瓶颈
+- 了解现代 HPC 框架：NCCL（多 GPU 通信）、Horovod（分布式深度学习）
+
 ---
 
-**参考资料：**
+## 📚 参考资料
 
+- PMPP 第四版 Chapter 20
+- [第二十章：异构计算集群编程](https://smarter.xin/posts/pmmpp-chapter20-heterogeneous-clusters/)
 - Hwu, W., Kirk, D., & El Hajj, I. (2022). *Programming Massively Parallel Processors: A Hands-on Approach* (4th Edition). Morgan Kaufmann.
 - MPI Forum. *MPI: A Message-Passing Interface Standard*. <https://www.mpi-forum.org/>
 - NVIDIA. *CUDA-Aware MPI*. <https://developer.nvidia.com/blog/introduction-cuda-aware-mpi/>
+
+**学习愉快！** 🎓
 
 ---
 

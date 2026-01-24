@@ -9,8 +9,11 @@ CUDA_ARCH = sm_89
 CUDA_FLAGS = -arch=$(CUDA_ARCH) -O3
 CXX_FLAGS = -std=c++17
 
+# Common 目录
+COMMON_DIR = ../../../../Common
+
 # 包含目录
-INCLUDES = -I./include
+INCLUDES = -I./include -I$(COMMON_DIR)
 
 # 目录
 SRC_DIR = src

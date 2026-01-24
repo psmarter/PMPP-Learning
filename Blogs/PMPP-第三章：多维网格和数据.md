@@ -1,6 +1,5 @@
 ---
 title: PMPP-第三章：多维网格和数据
-date: 2026-01-12 15:19:16
 tags:
   - CUDA
   - GPU编程
@@ -10,6 +9,8 @@ tags:
   - 图像处理
 categories: 知识分享
 cover: /img/PMPP.jpg
+abbrlink: 6b7045b6
+date: 2026-01-12 15:19:16
 ---
 
 ## 前言
@@ -20,9 +21,9 @@ cover: /img/PMPP.jpg
 
 ## 多维线程组织
 
-### 从1D到2D
+### 从一维到二维
 
-第二章用一维索引：
+第二章使用一维索引：
 
 ```cuda
 int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -36,7 +37,7 @@ int row = idx / width;  // 除法
 int col = idx % width;  // 取模
 ```
 
-除法和取模在GPU上有开销，可读性也差。用二维更自然：
+除法和取模在 GPU 上有开销，可读性也差。使用二维更自然：
 
 ```cuda
 int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -376,7 +377,7 @@ dim3 gd((300-1)/16+1, (150-1)/32+1); // grid
 - 索引计算先row后col（行主序）
 - 性能分析要量化（算术强度、带宽利用率）
 
-理解了naive实现的瓶颈，才能明白Shared Memory、Tiling的价值。下一章的优化会让同样的矩阵乘法性能提升10倍以上。
+理解了朴素实现的瓶颈，才能明白共享内存（Shared Memory）和分块（Tiling）的价值。第五章的优化技术会让同样的矩阵乘法性能提升10倍以上。
 
 ---
 

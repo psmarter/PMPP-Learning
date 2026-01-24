@@ -1,6 +1,5 @@
 ---
 title: PMPP-第二章：异构数据并行计算
-date: 2026-01-11 19:38:29
 tags:
   - CUDA
   - GPU编程
@@ -9,6 +8,8 @@ tags:
   - 向量加法
 categories: 知识分享
 cover: /img/PMPP.jpg
+abbrlink: 3ee22ce5
+date: 2026-01-11 19:38:29
 ---
 
 ## 前言
@@ -180,26 +181,26 @@ Grid
 
 ```cuda
 blocksPerGrid = (10000 + 255) / 256 = 40
-总threads = 40 × 256 = 10240
+总线程数 = 40 × 256 = 10240
 ```
 
 多出240个线程。不检查边界会越界访问，导致错误或崩溃。
 
 ## 内存管理
 
-### Host vs Device内存
+### 主机内存 vs 设备内存
 
 **关键**：两个独立的内存空间，不能直接互访。
 
-- **Host Memory**：CPU的DDR4/DDR5
-- **Device Memory**：GPU的GDDR6/HBM
+- **主机内存（Host Memory）**：CPU 的 DDR4/DDR5
+- **设备内存（Device Memory）**：GPU 的 GDDR6/HBM
 
 **错误示例**：
 
 ```cuda
 float *d_A;
 cudaMalloc((void**)&d_A, size);
-d_A[0] = 1.0f;  // 段错误！CPU不能直接访问GPU内存
+d_A[0] = 1.0f;  // 段错误！CPU 不能直接访问 GPU 内存
 ```
 
 **正确做法**：
@@ -220,22 +221,22 @@ PCIe带宽（~32 GB/s）远低于GPU内存带宽（500+ GB/s）。对于简单�
 - 保持数据在GPU（多步计算不回传）
 - 异步传输与计算重叠（高级技巧）
 
-### Unified Memory（可选）
+### 统一内存（Unified Memory，可选）
 
-从CUDA 6.0起可以用：
+从 CUDA 6.0 起可以使用：
 
 ```cuda
 float *data;
 cudaMallocManaged(&data, size);
 
-data[0] = 1.0f;              // CPU访问
-kernel<<<...>>>(data);       // GPU访问（自动迁移）
-printf("%f\n", data[0]);     // CPU访问（自动传回）
+data[0] = 1.0f;              // CPU 访问
+kernel<<<...>>>(data);       // GPU 访问（自动迁移）
+printf("%f\n", data[0]);     // CPU 访问（自动传回）
 
 cudaFree(data);
 ```
 
-方便，但有性能开销。学习原型开发友好，生产环境建议显式管理。
+方便，但有性能开销。学习和原型开发友好，生产环境建议显式管理。
 
 ## 执行配置
 
@@ -251,23 +252,24 @@ vecAdd<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, n);
 kernel<<<gridDim, blockDim, sharedMem, stream>>>(args);
 ```
 
-- `gridDim`：grid的维度（1D/2D/3D）
-- `blockDim`：block的维度
-- `sharedMem`：共享内存大小（可选，默认0）
-- `stream`：CUDA流（可选，默认0）
+参数说明：
+- `gridDim`：网格的维度（1D/2D/3D）
+- `blockDim`：块的维度
+- `sharedMem`：动态共享内存大小（可选，默认0）
+- `stream`：CUDA 流（可选，默认0）
 
-### 计算grid大小
+### 计算网格大小
 
 ```cuda
 int threads = 256;
 int blocks = (n + threads - 1) / threads;  // 向上取整
 ```
 
-数学等价于`ceil(n / threads)`，但整数运算更高效。
+数学上等价于 `ceil(n / threads)`，但整数运算更高效。
 
 ## 错误处理
 
-CUDA函数返回`cudaError_t`，需要显式检查：
+CUDA 函数返回 `cudaError_t`，需要显式检查：
 
 ```cuda
 #define CUDA_CHECK(call) \
@@ -285,40 +287,46 @@ CUDA_CHECK(cudaMalloc((void**)&d_A, size));
 CUDA_CHECK(cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice));
 ```
 
-Kernel启动不返回错误码，需要：
+核函数启动不返回错误码，需要这样检查：
 
 ```cuda
 vecAdd<<<blocks, threads>>>(d_A, d_B, d_C, n);
-CUDA_CHECK(cudaGetLastError());          // 检查启动错误
-CUDA_CHECK(cudaDeviceSynchronize());     // 同步并检查执行错误
+CUDA_CHECK(cudaGetLastError());          // 检查核函数启动错误
+CUDA_CHECK(cudaDeviceSynchronize());     // 同步并检查核函数执行错误
 ```
 
 ## 小结
 
-第二章通过向量加法建立了CUDA编程的基本框架：
+第二章通过向量加法建立了 CUDA 编程的基本框架：
 
-**核心流程**：内存分配 → 数据传输 → kernel启动 → 结果回传，这是所有CUDA程序的骨架。
+**核心流程**：内存分配 → 数据传输 → 核函数启动 → 结果回传，这是所有 CUDA 程序的骨架。
 
-**线程组织**：Grid/Block/Thread三级结构，索引计算`i = blockIdx.x * blockDim.x + threadIdx.x`要烂熟于心。
+**线程组织**：网格（Grid）/块（Block）/线程（Thread）三级结构，索引计算 `i = blockIdx.x * blockDim.x + threadIdx.x` 要烂熟于心。
 
-**内存模型**：Host和Device是独立空间，必须显式传输。数据传输开销不容忽视。
+**内存模型**：主机和设备是独立空间，必须显式传输。数据传输开销不容忽视。
 
-**性能认知**：向量加法虽然能在GPU上跑，但受内存带宽限制，性能提升有限。真正发挥GPU优势需要高算术强度的任务。
+**性能认知**：向量加法虽然能在 GPU 上运行，但受内存带宽限制，性能提升有限。真正发挥 GPU 优势需要高算术强度的任务。
 
 **代码习惯**：
 
-- 变量命名区分h_/d_
+- 变量命名区分 h_/d_（主机/设备）
 - 边界检查必须严格
 - 错误处理不能省略
 
-下一章进入多维数据处理（矩阵、图像），会用到2D Grid/Block组织。理解了一维的原理，多维只是自然扩展。
+下一章进入多维数据处理（矩阵、图像），会用到2D 网格/块组织。理解了一维的原理，多维只是自然扩展。
 
 ---
 
-**参考资料：**
+## 🚀 下一步
 
-- Hwu, W., Kirk, D., & El Hajj, I. (2022). *Programming Massively Parallel Processors: A Hands-on Approach* (4th Edition). Morgan Kaufmann.
-- [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/)
+---
+
+## 📚 参考资料
+
+- PMPP 第四版 Chapter 02
+- [第二章：异构数据并行计算](https://smarter.xin/posts/3ee22ce5/)
+
+**学习愉快！** 🎓
 
 ---
 

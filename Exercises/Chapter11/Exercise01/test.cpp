@@ -119,9 +119,19 @@ int main() {
         printf("   ❌ 结果不正确！\n\n");
     }
 
+    printf("8. Domino-Style 分层扫描（单kernel）...\n");
+    float* Y_domino = new float[large_N];
+    scan_hierarchical_domino(X_large, Y_domino, large_N);
+    if (allclose(Y_domino, Y_seq_large, large_N)) {
+        printf("   ✅ 结果正确！（最后结果: %.0f）\n\n", Y_domino[large_N - 1]);
+    } else {
+        printf("   ❌ 结果不正确！\n\n");
+    }
+
     delete[] X_large;
     delete[] Y_seq_large;
     delete[] Y_hier;
+    delete[] Y_domino;
 
     printf("【关键概念】\n");
     printf("----------------------------------------------------------------\n");
@@ -130,6 +140,7 @@ int main() {
     printf("• 双缓冲：消除写后读竞争，无需第二次 __syncthreads()\n");
     printf("• 三阶段：粗化策略，每线程处理多个元素\n");
     printf("• 分层扫描：支持任意长度，多 Block 协作\n");
+    printf("• Domino-Style：单kernel实现，动态块索引分配，原子标志同步\n");
     printf("\n");
 
     printf("✅ 测试完成！\n\n");

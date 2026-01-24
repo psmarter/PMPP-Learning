@@ -9,6 +9,9 @@ CUDA_ARCH = sm_89
 CUDA_FLAGS = -arch=$(CUDA_ARCH) -O3
 CXX_FLAGS = -std=c++17
 
+# Common 目录
+COMMON_DIR = ../../../Common
+
 # 目标可执行文件
 TARGET = test_dynamic_tile
 
@@ -29,12 +32,12 @@ $(TARGET): $(OBJECTS)
 	$(NVCC) $(CUDA_FLAGS) -o $@ $^
 
 # 编译 CUDA 源文件
-solution.o: $(CUDA_SRC)
-	$(NVCC) $(CUDA_FLAGS) -c $<
+solution.o: $(CUDA_SRC) solution.h
+	$(NVCC) $(CUDA_FLAGS) -I$(COMMON_DIR) -c $<
 
 # 编译 C++ 测试文件
-test.o: $(CPP_SRC)
-	$(NVCC) $(CXX_FLAGS) -c $<
+test.o: $(CPP_SRC) solution.h
+	$(NVCC) $(CXX_FLAGS) -I$(COMMON_DIR) -c $<
 
 # 运行程序
 run: $(TARGET)

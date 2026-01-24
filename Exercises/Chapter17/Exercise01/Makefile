@@ -37,4 +37,12 @@ clean:
 	rm -f $(TARGET) $(OBJECTS)
 	@echo "Cleaned all build files"
 
-.PHONY: all run clean
+# 帮助信息
+help:
+	@echo "Available targets:"
+	@echo "  make        - Build the project"
+	@echo "  make run    - Build and run the program"
+	@echo "  make clean  - Remove build artifacts"
+	@echo "  make help   - Show this help message"
+
+.PHONY: all run clean help

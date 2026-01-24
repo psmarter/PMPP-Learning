@@ -1,6 +1,5 @@
 ---
 title: PMPP-第四章：计算架构和调度
-date: 2026-01-15 13:08:55
 tags:
   - CUDA
   - GPU编程
@@ -10,11 +9,13 @@ tags:
   - Warp
 categories: 知识分享
 cover: /img/PMPP.jpg
+abbrlink: bd5d1d6
+date: 2026-01-15 13:08:55
 ---
 
 ## 前言
 
-前三章打下了基础：第一章理解"为什么用GPU"，第二章学会"怎么写kernel"，第三章掌握"多维数据处理"。但到目前为止，我们只是在使用GPU，还不真正理解它。第四章开始深入GPU内部——硬件架构如何影响性能，线程是怎么被调度执行的，为什么有些代码快有些慢。理解这些，才算真正入门GPU编程。
+前三章打下了基础：第一章理解"为什么使用 GPU"，第二章学会"如何编写核函数"，第三章掌握"多维数据处理"。但到目前为止，我们只是在使用 GPU，还未深入理解其内部机制。第四章开始深入 GPU 内部——硬件架构如何影响性能，线程如何被调度执行，代码性能差异的根本原因。理解这些硬件细节，才算真正入门 GPU 编程。
 
 > **📦 配套资源**：本系列文章配有完整的 [GitHub 仓库](https://github.com/psmarter/PMPP-Learning)，包含每章的练习题解答、CUDA 代码实现和详细注释。所有代码都经过测试，可以直接运行。
 
@@ -70,33 +71,33 @@ kernel<<<gridDim, blockDim>>>(args);
 
 这种设计的好处：block完全独立，硬件可以自由调度，适应不同规模的GPU。
 
-## Warp：执行的基本单位
+## 线程束（Warp）：执行的基本单位
 
-### 什么是Warp
+### 什么是线程束
 
-**Warp是32个连续线程组成的执行单位**。这是NVIDIA GPU的核心设计，理解warp就理解了GPU执行模型的一半。
+**线程束（Warp）是32个连续线程组成的执行单位**。这是 NVIDIA GPU 的核心设计，理解线程束就理解了 GPU 执行模型的一半。
 
 ```
-Block (256 threads)
-├── Warp 0: Thread 0-31
-├── Warp 1: Thread 32-63
-├── Warp 2: Thread 64-95
-├── Warp 3: Thread 96-127
-├── Warp 4: Thread 128-159
-├── Warp 5: Thread 160-191
-├── Warp 6: Thread 192-223
-└── Warp 7: Thread 224-255
+块（Block）包含256个线程
+├── 线程束 0：线程 0-31
+├── 线程束 1：线程 32-63
+├── 线程束 2：线程 64-95
+├── 线程束 3：线程 96-127
+├── 线程束 4：线程 128-159
+├── 线程束 5：线程 160-191
+├── 线程束 6：线程 192-223
+└── 线程束 7：线程 224-255
 ```
 
-**为什么是32**？硬件设计决定的。每个SM有一定数量的计算单元，32是效率最优的分组大小。
+**为什么是32个**？硬件设计决定的。每个 SM 有一定数量的计算单元，32是效率最优的分组大小。
 
-### SIMT执行模型
+### SIMT 执行模型
 
-GPU采用**SIMT（Single Instruction Multiple Thread）**模型：
+GPU 采用 **SIMT（Single Instruction Multiple Thread，单指令多线程）** 模型：
 
-- 同一warp内的32个线程，在同一时钟周期执行相同指令
+- 同一线程束内的32个线程，在同一时钟周期执行相同指令
 - 但操作不同的数据（不同的寄存器）
-- 类似SIMD，但更灵活（线程可以有独立状态）
+- 类似 SIMD，但更灵活（线程可以有独立状态）
 
 **举例**：
 
@@ -104,30 +105,30 @@ GPU采用**SIMT（Single Instruction Multiple Thread）**模型：
 C[i] = A[i] + B[i];
 ```
 
-Warp中的32个线程同时执行"加法"指令：
+线程束中的32个线程同时执行"加法"指令：
 
 ```
-Warp 0执行:
-Thread 0: C[0] = A[0] + B[0]  ─┐
-Thread 1: C[1] = A[1] + B[1]   │ 同一条add指令
-...                            │ 同一时钟周期
-Thread 31: C[31] = A[31] + B[31]─┘
+线程束 0 执行：
+线程 0：C[0] = A[0] + B[0]  ─┐
+线程 1：C[1] = A[1] + B[1]   │ 同一条 add 指令
+...                         │ 同一时钟周期
+线程 31：C[31] = A[31] + B[31]─┘
 ```
 
-硬件只需取一次指令，就能完成32个操作。这就是GPU高吞吐的来源。
+硬件只需取一次指令，就能完成32个操作。这就是 GPU 高吞吐的来源。
 
-### Warp调度
+### 线程束调度
 
-每个SM有多个Warp调度器（如Ampere是4个）。每个周期，调度器选择一个准备好的warp发射指令：
+每个 SM 有多个线程束调度器（如 Ampere 架构有4个）。每个时钟周期，调度器选择一个就绪的线程束发射指令：
 
 ```
-周期1: Warp调度器0选择Warp 3，发射add指令
-周期2: Warp调度器0选择Warp 7，发射load指令
-周期3: Warp调度器0选择Warp 0，发射mul指令
+周期1：线程束调度器0选择线程束3，发射 add 指令
+周期2：线程束调度器0选择线程束7，发射 load 指令
+周期3：线程束调度器0选择线程束0，发射 mul 指令
 ...
 ```
 
-**关键**：warp之间是独立调度的。如果warp 3在等内存，调度器切换到warp 7执行，不浪费时钟周期。
+**关键**：线程束之间是独立调度的。如果线程束3在等待内存数据，调度器可以切换到线程束7执行，避免浪费时钟周期。
 
 ## 控制流发散：性能杀手
 
@@ -535,15 +536,20 @@ __global__ void matMul(float *M, float *N, float *P, int width) {
 - 检查寄存器使用，控制溢出
 - 用profiler分析，不要猜
 
-理解了这些硬件知识，后面第5章的Shared Memory优化就水到渠成了。Tiling的本质就是利用共享内存减少全局内存访问，提高算术强度，让计算单元不再饿着。
+理解了这些硬件知识，第五章的共享内存（Shared Memory）优化就容易理解了。分块（Tiling）的本质就是利用共享内存减少全局内存访问，提高算术强度，充分利用计算单元。
 
 ---
 
-**参考资料：**
+## 🚀 下一步
 
-- Hwu, W., Kirk, D., & El Hajj, I. (2022). *Programming Massively Parallel Processors: A Hands-on Approach* (4th Edition). Morgan Kaufmann.
-- [CUDA C++ Programming Guide - Hardware Implementation](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#hardware-implementation)
-- [NVIDIA Nsight Compute Documentation](https://docs.nvidia.com/nsight-compute/)
+---
+
+## 📚 参考资料
+
+- PMPP 第四版 Chapter 04
+- [第四章：计算架构和调度](https://smarter.xin/posts/bd5d1d6/)
+
+**学习愉快！** 🎓
 
 ---
 

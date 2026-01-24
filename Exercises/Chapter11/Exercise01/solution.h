@@ -57,4 +57,10 @@ void scan_three_phase(float* X, float* Y, unsigned int N);
  */
 void scan_hierarchical(float* X, float* Y, unsigned int N);
 
+/**
+ * Domino-Style 分层扫描
+ * 单kernel实现，使用动态块索引分配和原子标志同步
+ */
+void scan_hierarchical_domino(float* X, float* Y, unsigned int N);
+
 #endif // SOLUTION_H

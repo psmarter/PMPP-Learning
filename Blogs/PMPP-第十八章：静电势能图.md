@@ -15,7 +15,7 @@ cover: /img/PMPP.jpg
 
 ## 前言
 
-第十七章我们探索了 MRI 重建这一医学影像应用。第十八章转向另一个重要的科学计算领域——**分子动力学**中的静电势能计算。静电相互作用是分子模拟的核心，理解分子如何通过电荷相互作用有助于药物设计、蛋白质折叠研究等。本章将展示如何利用 GPU 的并行能力高效计算**静电势能图（Electrostatic Potential Map）**。
+第十七章探索了 MRI 重建这一医学影像应用。第十八章转向另一个重要的科学计算领域——**分子动力学（Molecular Dynamics）**中的静电势能计算。静电相互作用是分子模拟的核心，理解分子如何通过电荷相互作用，对药物设计、蛋白质折叠研究等具有重要意义。本章将展示如何利用 GPU 的并行能力高效计算**静电势能图（Electrostatic Potential Map）**。
 
 > **📦 配套资源**：本系列文章配有完整的 [GitHub 仓库](https://github.com/psmarter/PMPP-Learning)，包含每章的练习题解答、CUDA 代码实现和详细注释。所有代码都经过测试，可以直接运行。
 
@@ -528,13 +528,25 @@ __global__ void potential_to_color(
 
 静电势能计算是分子动力学模拟的核心组件。掌握本章技术，就能理解 GROMACS、AMBER 等分子动力学软件的 GPU 加速原理。
 
+## 🚀 下一步
+
+- 实现一个完整的静电势能计算程序，从直接求和开始，逐步优化到共享内存和截断方法
+- 学习 PME 方法，实现基于 FFT 的长程相互作用计算
+- 探索其他 N-body 问题：引力模拟、流体动力学中的粒子方法
+- 了解分子动力学模拟的完整流程：力场计算、积分器、温度/压力控制
+- 研究 GROMACS 或 AMBER 的 GPU 加速实现，学习工业级优化技巧
+
 ---
 
-**参考资料：**
+## 📚 参考资料
 
+- PMPP 第四版 Chapter 18
+- [第十八章：静电势能图](https://smarter.xin/posts/pmmpp-chapter18-electrostatic-potential/)
 - Hwu, W., Kirk, D., & El Hajj, I. (2022). *Programming Massively Parallel Processors: A Hands-on Approach* (4th Edition). Morgan Kaufmann.
 - Stone, J. E., et al. (2007). *Accelerating Molecular Modeling Applications with GPU Computing*. JCC.
 - Darden, T., et al. (1993). *Particle Mesh Ewald: An N·log(N) Method for Ewald Sums*. JCP.
+
+**学习愉快！** 🎓
 
 ---
 

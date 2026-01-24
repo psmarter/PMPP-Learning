@@ -425,3 +425,152 @@ void scan_hierarchical(float* X, float* Y, unsigned int N) {
     CHECK_CUDA(cudaFree(d_block_sums));
     CHECK_CUDA(cudaFree(d_scanned_block_sums));
 }
+
+// ====================== Domino-Style 分层扫描 ======================
+
+/**
+ * Domino-Style 分层扫描 Kernel
+ * 
+ * 特点：
+ * 1. 单kernel实现（避免多kernel同步开销）
+ * 2. 动态块索引分配（防止死锁）
+ * 3. 使用原子标志进行块间同步
+ * 4. Domino-style传播（块间依赖）
+ * 
+ * 参数：
+ * - X: 输入数组
+ * - Y: 输出数组（前缀和）
+ * - scan_value: 块间前缀和
+ * - flags: 块间同步标志
+ * - blockCounter: 动态块索引计数器
+ * - N: 数组长度
+ */
+__global__ void hierarchical_domino_scan_kernel(
+    float* X, 
+    float* Y, 
+    float* scan_value, 
+    int* flags, 
+    int* blockCounter,
+    unsigned int N
+) {
+    extern __shared__ float buffer[];
+    __shared__ unsigned int bid_s;
+    __shared__ float previous_sum;
+
+    const unsigned int tid = threadIdx.x;
+
+    // 【关键】动态块索引分配 - 防止死锁
+    // 使用原子操作分配块ID，避免固定blockIdx.x导致的依赖死锁
+    if (tid == 0) {
+        bid_s = atomicAdd(blockCounter, 1);
+    }
+    __syncthreads();
+
+    const unsigned int bid = bid_s;
+    const unsigned int gid = bid * blockDim.x + tid;
+
+    // Phase 1: 块内Kogge-Stone扫描
+    if (gid < N) {
+        buffer[tid] = X[gid];
+    } else {
+        buffer[tid] = 0.0f;
+    }
+
+    // Kogge-Stone 迭代
+    for (unsigned int stride = 1; stride < blockDim.x; stride *= 2) {
+        __syncthreads();
+        float temp = buffer[tid];
+        if (tid >= stride) {
+            temp += buffer[tid - stride];
+        }
+        __syncthreads();
+        buffer[tid] = temp;
+    }
+
+    // 存储块内扫描结果
+    if (gid < N) {
+        Y[gid] = buffer[tid];
+    }
+
+    // 获取当前块的总和
+    const float local_sum = buffer[blockDim.x - 1];
+
+    // Phase 2: 块间和传播（Domino-style）
+    if (tid == 0) {
+        if (bid > 0) {
+            // 等待前一个块完成（忙等待）
+            while (atomicAdd(&flags[bid], 0) == 0) {
+                // 空循环，等待前一个块设置标志
+            }
+
+            // 读取前一个块的累积和
+            previous_sum = scan_value[bid];
+
+            // 计算当前块的累积和并传播给下一个块
+            const float total_sum = previous_sum + local_sum;
+            scan_value[bid + 1] = total_sum;
+
+            // 设置标志，通知下一个块
+            __threadfence();  // 确保写入对其他块可见
+            atomicExch(&flags[bid + 1], 1);
+        } else {
+            // 第一个块：初始化
+            previous_sum = 0.0f;
+            scan_value[bid + 1] = local_sum;
+            __threadfence();
+            atomicExch(&flags[bid + 1], 1);
+        }
+    }
+    __syncthreads();
+
+    // Phase 3: 将块间和加到块内结果
+    if (bid > 0 && gid < N) {
+        Y[gid] += previous_sum;
+    }
+}
+
+/**
+ * Domino-Style 分层扫描（主机接口函数）
+ */
+void scan_hierarchical_domino(float* X, float* Y, unsigned int N) {
+    float *d_X, *d_Y, *d_scan_value;
+    int *d_flags, *d_blockCounter;
+
+    unsigned int block_size = SECTION_SIZE;
+    unsigned int num_blocks = cdiv(N, block_size);
+
+    // 分配设备内存
+    CHECK_CUDA(cudaMalloc(&d_X, N * sizeof(float)));
+    CHECK_CUDA(cudaMalloc(&d_Y, N * sizeof(float)));
+    CHECK_CUDA(cudaMalloc(&d_scan_value, (num_blocks + 1) * sizeof(float)));
+    CHECK_CUDA(cudaMalloc(&d_flags, (num_blocks + 1) * sizeof(int)));
+    CHECK_CUDA(cudaMalloc(&d_blockCounter, sizeof(int)));
+
+    // 拷贝输入数据
+    CHECK_CUDA(cudaMemcpy(d_X, X, N * sizeof(float), cudaMemcpyHostToDevice));
+
+    // 初始化标志和计数器
+    CHECK_CUDA(cudaMemset(d_flags, 0, (num_blocks + 1) * sizeof(int)));
+    CHECK_CUDA(cudaMemset(d_blockCounter, 0, sizeof(int)));
+    CHECK_CUDA(cudaMemset(d_scan_value, 0, (num_blocks + 1) * sizeof(float)));
+
+    // 启动kernel（单kernel完成所有工作）
+    size_t shared_mem_size = block_size * sizeof(float);
+    hierarchical_domino_scan_kernel<<<num_blocks, block_size, shared_mem_size>>>(
+        d_X, d_Y, d_scan_value, d_flags, d_blockCounter, N
+    );
+    CHECK_LAST_CUDA_ERROR();
+
+    // 等待完成
+    CHECK_CUDA(cudaDeviceSynchronize());
+
+    // 拷贝结果回主机
+    CHECK_CUDA(cudaMemcpy(Y, d_Y, N * sizeof(float), cudaMemcpyDeviceToHost));
+
+    // 释放内存
+    CHECK_CUDA(cudaFree(d_X));
+    CHECK_CUDA(cudaFree(d_Y));
+    CHECK_CUDA(cudaFree(d_scan_value));
+    CHECK_CUDA(cudaFree(d_flags));
+    CHECK_CUDA(cudaFree(d_blockCounter));
+}

@@ -15,7 +15,7 @@ cover: /img/PMPP.jpg
 
 ## 前言
 
-前面的章节主要讨论了通用的并行算法和深度学习。第十七章转向一个具体的应用领域——**医学影像**，特别是**磁共振成像（MRI）**的图像重建。MRI 重建是计算密集型任务，涉及大量的傅里叶变换和迭代优化，是 GPU 加速的理想场景。本章将展示如何将前面学到的并行技术（FFT、矩阵运算、迭代求解）综合应用到实际问题中。
+前面的章节主要讨论了通用的并行算法和深度学习应用。第十七章转向一个具体的应用领域——**医学影像（Medical Imaging）**，特别是**磁共振成像（MRI，Magnetic Resonance Imaging）**的图像重建。MRI 重建是计算密集型任务，涉及大量的傅里叶变换和迭代优化，是 GPU 加速的理想场景。本章将展示如何将前面学到的并行技术（FFT、矩阵运算、迭代求解）综合应用于实际问题。
 
 > **📦 配套资源**：本系列文章配有完整的 [GitHub 仓库](https://github.com/psmarter/PMPP-Learning)，包含每章的练习题解答、CUDA 代码实现和详细注释。所有代码都经过测试，可以直接运行。
 
@@ -481,13 +481,25 @@ for (int c = 0; c < num_coils; c++) {
 
 MRI 重建只是医学影像的冰山一角。CT 重建、PET 重建、超声成像都有类似的计算密集型任务，GPU 正在改变整个医学影像领域。
 
+## 🚀 下一步
+
+- 实现一个简单的 NUFFT，从 Type-1 和 Type-2 开始，理解网格化和插值的过程
+- 学习共轭梯度法的 GPU 实现，掌握迭代求解器的优化技巧
+- 探索不同的正则化方法：TV、小波稀疏、字典学习
+- 研究压缩感知 MRI，了解稀疏重建的理论基础
+- 了解其他医学影像重建方法：CT 重建（FBP、迭代重建）、PET 重建
+
 ---
 
-**参考资料：**
+## 📚 参考资料
 
+- PMPP 第四版 Chapter 17
+- [第十七章：迭代式磁共振成像重建](https://smarter.xin/posts/pmmpp-chapter17-mri-reconstruction/)
 - Hwu, W., Kirk, D., & El Hajj, I. (2022). *Programming Massively Parallel Processors: A Hands-on Approach* (4th Edition). Morgan Kaufmann.
 - Lustig, M., Donoho, D., & Pauly, J. M. (2007). *Sparse MRI: The Application of Compressed Sensing for Rapid MR Imaging*. MRM.
 - Fessler, J. A., & Sutton, B. P. (2003). *Nonuniform Fast Fourier Transforms Using Min-Max Interpolation*. IEEE TSP.
+
+**学习愉快！** 🎓
 
 ---
 

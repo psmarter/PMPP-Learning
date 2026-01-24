@@ -13,7 +13,7 @@
 - Memory Coalescing（优化内存访问模式）
 - 截断方法与空间分区（Cutoff / Cell List）
 
-**相关博客笔记**：[PMPP-第十八章：静电势能图.md](../../Blogs/PMPP-第十八章：静电势能图.md)
+**相关博客笔记**：[第十八章：静电势能图](https://smarter.xin/posts/d7c6e6a8/)
 
 ---
 
@@ -304,10 +304,14 @@ Chapter18/
    - 确保 warp 内线程访问连续内存
    - 对性能影响可达 10 倍以上
 
+5. **实际应用优化**：对于大规模分子系统，考虑使用截断方法（cutoff）和空间分区（Cell List）来减少计算量，只计算距离小于截断半径的原子对；使用 `__restrict__` 关键字帮助编译器优化内存访问；在生产环境中，可以使用 NAMD、GROMACS 等成熟的分子动力学软件，它们已经实现了高度优化的 GPU 加速
+
 ---
 
 ## 📚 参考资料
 
 - PMPP 第四版 Chapter 18
 - [GitHub参考仓库](https://github.com/tugot17/pmpp/tree/main/chapter-18)
-- [PMPP-第十八章：静电势能图.md](../../Blogs/PMPP-第十八章：静电势能图.md)
+- [第十八章：静电势能图](https://smarter.xin/posts/d7c6e6a8/)
+
+**学习愉快！** 🎓

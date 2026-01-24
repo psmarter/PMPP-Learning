@@ -14,7 +14,7 @@
 - 方向优化：动态切换策略（Section 15.3）
 - 负载平衡与性能优化
 
-**相关博客笔记**：[PMPP-第十五章：图遍历.md](../../Blogs/PMPP-第十五章：图遍历.md)
+**相关博客笔记**：[第十五章：图遍历](https://smarter.xin/posts/70b05668/)
 
 ---
 
@@ -338,6 +338,8 @@ __global__ void bfs_single_block_kernel(...) {
    - 度数差异大的图（无标度）需要动态分配
    - 使用 Work-stealing 或 Dynamic parallelism
 
+5. **性能分析与调优**：使用 Nsight Systems 分析 BFS 各阶段的耗时，重点关注前沿队列构建和原子操作的开销；对于大规模图，考虑使用 cuGraph 库（如 `cugraph::bfs`），它针对不同图类型和硬件进行了优化；实际应用中，方向优化 BFS 通常能获得最佳性能
+
 ---
 
 ## 🚀 下一步
@@ -355,4 +357,6 @@ __global__ void bfs_single_block_kernel(...) {
 
 - PMPP 第四版 Chapter 15
 - [GitHub参考仓库](https://github.com/tugot17/pmpp/tree/main/chapter-15)
-- [PMPP-第十五章：图遍历.md](../../Blogs/PMPP-第十五章：图遍历.md)
+- [第十五章：图遍历](https://smarter.xin/posts/70b05668/)
+
+**学习愉快！** 🎓
