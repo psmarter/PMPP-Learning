@@ -3,7 +3,7 @@
 # ============================================================================
 
 # 编译器和标志
-NVCC = nvcc
+NVCC = /usr/local/cuda/bin/nvcc
 
 # CUDA 架构
 CUDA_ARCH = sm_89
@@ -35,15 +35,15 @@ all: $(TARGET)
 
 # 链接目标文件
 $(TARGET): $(OBJECTS)
-	$(NVCC) $(CUDA_FLAGS) -o $@ $^ $(LIBS)
+	$(NVCC) $(CUDA_FLAGS) -L/usr/local/cuda/lib64 -o $@ $^ $(LIBS)
 
 # 编译 CUDA 源文件
 solution.o: $(CUDA_SRC) solution.h
-	$(NVCC) $(CUDA_FLAGS) -I$(COMMON_DIR) -c $<
+	$(NVCC) $(CUDA_FLAGS) -I$(COMMON_DIR) -I/usr/local/cuda/include -c $<
 
 # 编译 C++ 测试文件
 test.o: $(CPP_SRC) solution.h
-	$(NVCC) $(CXX_FLAGS) -I$(COMMON_DIR) -c $<
+	$(NVCC) $(CXX_FLAGS) -I$(COMMON_DIR) -I/usr/local/cuda/include -c $<
 
 # 运行程序
 run: $(TARGET)

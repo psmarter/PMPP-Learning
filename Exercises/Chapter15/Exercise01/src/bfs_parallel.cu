@@ -644,12 +644,8 @@ int* bfsParallelSingleBlockDevice(const CSRGraph& deviceGraph, int startingNode)
         d_frontier = d_nextFrontier;
         d_nextFrontier = temp;
         
-        d_frontierSize = d_nextFrontierSize; // 这里逻辑有点问题，d_frontierSize 是指针。
-        // 我们应该交换内容或者指针。
-        // 简单起见，我们直接更新 d_frontierSize 的内容
-        // 但由于是在Host循环，我们需要把 d_nextFrontierSize 的值 赋给 d_frontierSize (Device端)
-        // 已经在 while 循环开始前并没有做把 next size 赋给 current size 的操作（除了第一次）
-        // 修正：我们应该在循环尾部拷贝 size
+        // 此行会导致指针别名和双重释放，且多余，因为下面做了Memcpy更新值
+        // d_frontierSize = d_nextFrontierSize; 
         
         CHECK_CUDA(cudaMemcpy(d_frontierSize, &hostFrontierSize, sizeof(int), cudaMemcpyHostToDevice));
         

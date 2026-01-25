@@ -98,8 +98,6 @@ __global__ void TiledMatrixMulKernelWithCoarsening(float* M, float* N, float* P,
 
     // 当前线程负责的行
     int row = by * TILE_WIDTH + ty;
-    // 当前线程负责的起始列（每个线程处理 COARSE_FACTOR 个列）
-    int colStart = bx * TILE_WIDTH * COARSE_FACTOR + tx;
 
     // COARSE_FACTOR 个输出值
     float Pvalue[COARSE_FACTOR] = {0.0f};

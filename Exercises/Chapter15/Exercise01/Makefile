@@ -43,6 +43,7 @@ $(TARGET): $(OBJ_FILES)
 
 # 编译 CUDA 源文件
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cu
+	@mkdir -p $(OBJ_DIR)
 	$(NVCC) $(CUDA_FLAGS) $(INCLUDES) -c $< -o $@
 
 # 运行程序
