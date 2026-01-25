@@ -70,9 +70,11 @@ public:
 // ============================================================================
 
 class Quadtree_node {
-    int m_id;
-    Bounding_box m_bounding_box;
-    int m_begin, m_end;
+    // 注意: Bounding_box 必须放在前面以确保 float2 的 8 字节对齐
+    // 否则会导致 "misaligned address" CUDA 错误
+    Bounding_box m_bounding_box;  // 16 bytes, requires 8-byte alignment
+    int m_id;                      // 4 bytes
+    int m_begin, m_end;            // 8 bytes
 
 public:
     __host__ __device__ Quadtree_node() : m_id(0), m_begin(0), m_end(0) {}
