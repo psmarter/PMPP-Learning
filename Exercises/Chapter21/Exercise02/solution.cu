@@ -10,14 +10,14 @@
 // ============================================================================
 
 __device__ bool check_num_points_and_depth(
-    Quadtree_node* node, Points* points, int num_points, Parameters params) {
+    Quadtree_node& node, Points* points, int num_points, Parameters params) {
     
     if (params.depth >= params.max_depth || 
         num_points <= params.min_points_per_node) {
         // 停止递归，确保 points[0] 包含所有点
         if (params.point_selector == 1) {
-            int it = node->points_begin();
-            int end = node->points_end();
+            int it = node.points_begin();
+            int end = node.points_end();
             for (it += threadIdx.x; it < end; it += blockDim.x) {
                 points[0].set_point(it, points[1].get_point(it));
             }
@@ -89,21 +89,19 @@ __device__ void reorder_points(
     
     for (int iter = range_begin + threadIdx.x; iter < range_end; iter += blockDim.x) {
         float2 p = in_points.get_point(iter);
-        int dest = -1;
+        int dest;
         
         if (p.x < center.x && p.y >= center.y) {
-            dest = atomicAdd(&smem2[0], 1);
+            dest = atomicAdd(&smem2[0], 1);  // Top-left
         } else if (p.x >= center.x && p.y >= center.y) {
-            dest = atomicAdd(&smem2[1], 1);
+            dest = atomicAdd(&smem2[1], 1);  // Top-right
         } else if (p.x < center.x && p.y < center.y) {
-            dest = atomicAdd(&smem2[2], 1);
-        } else if (p.x >= center.x && p.y < center.y) {
-            dest = atomicAdd(&smem2[3], 1);
+            dest = atomicAdd(&smem2[2], 1);  // Bottom-left
+        } else {
+            dest = atomicAdd(&smem2[3], 1);  // Bottom-right
         }
         
-        if (dest >= 0) {
-            out_points->set_point(dest, p);
-        }
+        out_points->set_point(dest, p);
     }
     __syncthreads();
 }
@@ -113,7 +111,7 @@ __device__ void reorder_points(
 // ============================================================================
 
 __device__ void prepare_children(
-    Quadtree_node* children, Quadtree_node* node, 
+    Quadtree_node* children, Quadtree_node& node, 
     const Bounding_box& bbox, int* smem) {
     
     if (threadIdx.x == 0) {
@@ -154,8 +152,9 @@ __global__ void build_quadtree_kernel(
     
     __shared__ int smem[8];  // 4个象限点数 + 4个偏移
     
-    Quadtree_node* node = &nodes[blockIdx.x];
-    int num_points = node->num_points();
+    // The current node in the quadtree
+    Quadtree_node& node = nodes[blockIdx.x];
+    int num_points = node.num_points();
     
     // 检查停止条件
     if (check_num_points_and_depth(node, points, num_points, params)) {
@@ -163,13 +162,13 @@ __global__ void build_quadtree_kernel(
     }
     
     // 计算边界框中心
-    const Bounding_box& bbox = node->bounding_box();
+    const Bounding_box& bbox = node.bounding_box();
     float2 center;
     bbox.compute_center(&center);
     
     // 点范围
-    int range_begin = node->points_begin();
-    int range_end = node->points_end();
+    int range_begin = node.points_begin();
+    int range_end = node.points_end();
     const Points& in_points = points[params.point_selector];
     Points* out_points = &points[(params.point_selector + 1) % 2];
     
@@ -177,36 +176,23 @@ __global__ void build_quadtree_kernel(
     count_points_in_children(in_points, smem, range_begin, range_end, center);
     
     // 计算重排偏移
-    scan_for_offsets(node->points_begin(), smem);
+    scan_for_offsets(node.points_begin(), smem);
     
     // 重排点
     reorder_points(out_points, in_points, smem, range_begin, range_end, center);
     
     // 递归启动子 kernel
-    if (threadIdx.x == 0) {
-        bool should_recurse = false;
-        for (int i = 0; i < 4; i++) {
-            if (smem[i] > params.min_points_per_node && 
-                params.depth + 1 < params.max_depth) {
-                should_recurse = true;
-                break;
-            }
-        }
+    if (threadIdx.x == blockDim.x - 1) {
+        // The children
+        Quadtree_node* children = 
+            &nodes[params.num_nodes_at_this_level + blockIdx.x * 4];
         
-        if (should_recurse) {
-            Quadtree_node* children = 
-                &nodes[params.num_nodes_at_this_level + blockIdx.x * 4];
-            
-            prepare_children(children, node, bbox, smem);
-            
-            Parameters next_params(params, true);
-            for (int i = 0; i < 4; i++) {
-                if (smem[i] > 0) {
-                    build_quadtree_kernel<<<1, blockDim.x, 8 * sizeof(int)>>>(
-                        &children[i], points, next_params);
-                }
-            }
-        }
+        // Prepare children launch
+        prepare_children(children, node, bbox, smem);
+        
+        // Launch 4 children blocks
+        build_quadtree_kernel<<<4, blockDim.x, 8 * sizeof(int)>>>(
+            children, points, Parameters(params, true));
     }
 }
 
