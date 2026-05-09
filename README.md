@@ -1,5 +1,6 @@
 # PMPP 学习笔记 - Programming Massively Parallel Processors（大规模并行处理器程序设计）
 
+[![oosmetrics](https://api.oosmetrics.com/api/v1/badge/achievement/78e59898-3be7-46c1-9f62-0b0039e8a814.svg)](https://oosmetrics.com/repo/psmarter/PMPP-Learning)
 [![CUDA](https://img.shields.io/badge/CUDA-11.0+-green?style=flat-square&logo=nvidia)](https://developer.nvidia.com/cuda-zone)
 [![C++](https://img.shields.io/badge/C++-17-blue?style=flat-square&logo=cplusplus)](https://isocpp.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
@@ -7,7 +8,7 @@
 
 David B. Kirk 和 Wen-mei W. Hwu《Programming Massively Parallel Processors》第四版（大规模并行处理器程序设计）的完整学习记录，包含22篇学习笔记、38个完整Exercise、100+种算法实现和详细的CUDA代码。
 
-> 📝 **博客系列**: [https://smarter.xin](https://smarter.xin) | 📚 **全书导读**: [点击阅读](https://smarter.xin/posts/30730973/)
+> 📝 **博客系列**: [smarter.xin](https://smarter.xin) | 📚 **全书导读**: [点击阅读](https://smarter.xin/posts/30730973/)
 
 ---
 
